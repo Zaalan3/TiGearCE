@@ -1,0 +1,70 @@
+Memory
+
+$0000 - $03FF : Fixed to Start of ROM 
+$0400 - $3FFF : Slot 0 
+$4000 - $7FFF : Slot 1 
+$8000 - $BFFF : Slot 2 
+$C000 - $DFFF : RAM 
+$E000 - $FFFF : RAM Mirror 
+
+$FFFC - $FFFF : Sega Mapper 
+ 
+(heap)
+
+$D031F6 : vars (3.5 kb) 
+$D04000 : JIT Block List (16kb)
+ 
+$D08000 : SRAM 	(32kb)
+$D10000 : VRAM  (16kb) 
+$D14000 : WRAM  (8kb) 
+
+(freeMem)
+
+$D28000 : tile cache (32 KB) 
+$D30000 : z80 page   (64 KB)
+	$0000 - $0100 : rst routines 
+	
+
+(VRAM) 
+
+$D40000 : virtual tile map cache (64 KB) 
+$D50000 : tile/line attributes (10 KB) 
+
+59659 Z80 cycles 
+
+Average Frameskip? 1-2 
+
+One buffer mode: 
+	lock SPI 
+	draw 
+	wait until front porch 
+	unlock SPI 
+	
+register allocation:
+	af => af 
+	af' => cycle count
+	hl => scratch
+	de => hl 
+	bc => de 
+	ix => bc 
+	iy => ix ( (sp) => iy ) 
+	i => stack pointer 
+	
+	
+JIT opcode table 
+
+6 byte 
+cycles  1
+length  1
+arg 	1 
+routine 3 
+
+copy bytes verbatim: 
+	ld a,nn
+	
+copy second byte (with new op and optional prefix) : 
+	ld d,nn => ld b,nn 
+	ld h,nn => ld d,nn 
+	ld b,nn => ld ixh,nn 
+
+
