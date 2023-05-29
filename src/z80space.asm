@@ -50,9 +50,7 @@ rst_verify_write_ind:
 	ld a,iyh
 	jp.lil mapper_write
 	
-	; push_in_wram 
-	; push_in_slot2 
-	; push_in_rom 
+	; usage: push rr / rst 
 	align $28
 rst_push: 
 	ex af,af' 
@@ -62,7 +60,8 @@ rst_push:
 	dec hl
 	jp push_in_wram   
 rst_push_smc:=$-2 
-
+	
+	; usage: rst / pop rr
 	align $30
 rst_pop: 
 	ex af,af' 
