@@ -65,7 +65,9 @@ push_region_boundary:
 	ret 
 
 stack_routine_lut: 
-	dw 8 dup (push_in_rom,pop_in_rom)
+	dw push_in_rom,pop_in_fixed_area 
+	dw 3 dup (push_in_rom,pop_in_slot0) 
+	dw 4 dup (push_in_rom,pop_in_slot1) 
 	dw 4 dup (push_in_slot2,pop_in_rom) 
 	dw 2 dup (push_in_wram,pop_in_wram) 
 	dw 2 dup (push_in_wram_mirror,pop_in_wram_mirror) 
@@ -133,26 +135,83 @@ push_in_slot2:
 .skip: 
 	jp.lil stack_write_sram 
 	
+
 	
-pop_in_rom: 
-	ld i,hl
-	inc l ; only read twice if on a page boundary  
-	jq z,pop_region_boundary
-.readonce:
-	dec l 
+pop_in_fixed_area: 
+	ld i,hl 
+	ld de,$03FF 
+	or a,a 
+	sbc hl,de 
+	jq nc,pop_region_boundary
+.read: 
+	add hl,de 
 	ex de,hl
-	ex af,af' 
-	rst rst_get_address_hl
-	ld.lil bc,(hl)
-	pop hl 
-	push bc 
-	push hl 
-	exx
-	ret 
+	call fixed_area_fetch
+	ld.lil hl,(hl) 
+	pop de 
+	push hl
+	push de 
+	exx 
+	ex af,af'
+	ret
+
+pop_in_slot0: 
+	ld i,hl 
+	ld de,$3FFF
+	or a,a 
+	sbc hl,de 
+	jq nc,pop_region_boundary
+.read:
+	add hl,de 
+	ex de,hl
+	call slot0_fetch
+	ld.lil hl,(hl) 
+	pop de 
+	push hl
+	push de 
+	exx 
+	ex af,af'
+	ret
+
+pop_in_slot1: 
+	ld i,hl 
+	ld de,$7FFF
+	or a,a 
+	sbc hl,de 
+	jq nc,pop_region_boundary
+.read:
+	add hl,de 
+	ex de,hl
+	call slot1_fetch
+	ld.lil hl,(hl) 
+	pop de 
+	push hl
+	push de 
+	exx 
+	ex af,af'
+	ret
+	
+pop_in_slot2: 
+	ld i,hl 
+	ld de,$BFFF
+	or a,a 
+	sbc hl,de 
+	jr nc,pop_region_boundary
+.read:
+	add hl,de 
+	ex de,hl
+	call slot2_fetch
+	ld.lil hl,(hl) 
+	pop de 
+	push hl
+	push de 
+	exx 
+	ex af,af'
+	ret
 	
 pop_in_wram: 
 	ld i,hl
-	ld de,$E000 
+	ld de,$DFFF 
 	or a,a 
 	sbc hl,de 
 	jq nc,pop_region_boundary
