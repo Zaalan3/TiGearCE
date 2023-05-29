@@ -50,7 +50,7 @@ push_region_boundary:
 	add hl,hl
 	add hl,hl
 	add hl,hl
-	ld l,6 
+	ld l,4
 	mlt hl
 	ld de,stack_routine_lut
 	add hl,de 
