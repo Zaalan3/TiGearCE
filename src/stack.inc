@@ -3,6 +3,14 @@ extern stack_write_wram
 extern stack_write_sram
 extern _mapper_backup
 
+update_stack: 
+	push de 
+	ld hl,i 
+	ex de,hl 
+	call push_region_boundary.update
+	pop de 
+	ret 
+	
 ; perform two byte reads if in region boundary / mapper region 
 pop_region_boundary: 
 	ld hl,i 

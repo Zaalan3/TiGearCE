@@ -15,8 +15,8 @@ virtual at $0000
 	assume adl=0 
 	
 	align 0  
-rst_trap: 
-	ret 
+rst_jit_dispatch:
+	jp.lil jit_dispatch
 	 
 	; de = z80 hl
 	align $08
@@ -75,7 +75,7 @@ rst_pop_smc:=$-2
 	
 	align $38
 rst_int_poll: 
-	ret 
+	ret
 	
 	align $66 
 nmi_handler: 
@@ -94,4 +94,4 @@ jit_page_src: db _z80_page_data
 extern _sram 
 extern _wram 
 extern mapper_write 
-
+extern jit_dispatch
