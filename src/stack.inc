@@ -136,26 +136,14 @@ push_in_slot2:
 	
 pop_in_rom: 
 	ld i,hl
+	inc l ; only read twice if on a page boundary  
+	jq z,pop_region_boundary
+.readonce:
+	dec l 
 	ex de,hl
-	inc e ; only read twice if on a page boundary  
-	dec e
-	jp pe,.readtwice
-.readonce: 
-	dec e 
 	ex af,af' 
 	rst rst_get_address_hl
 	ld.lil bc,(hl)
-	jr .end 
-.readtwice:
-	dec e 
-	ex de,hl 
-	ex af,af' 
-	rst rst_get_address_hl
-	ld.lil c,(hl) 
-	inc de
-	rst rst_get_address_hl
-	ld.lil b,(hl)
-.readtwice:
 	pop hl 
 	push bc 
 	push hl 
@@ -182,7 +170,7 @@ pop_in_wram:
 	
 pop_in_wram_mirror:
 	ld i,hl 
-	dec h 
+	dec h 	; check if overflow to page 0 
 	jp pe,pop_region_boundary
 	inc h 
 	ld de,$E000 
