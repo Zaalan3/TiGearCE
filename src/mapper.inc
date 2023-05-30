@@ -45,7 +45,7 @@ slot0_smc_addr:= $-3
 slot1_fetch: 
 	ld.lil hl,0 
 slot1_sms_addr:= $-3 
-	add.lul hl,de 
+	add.lil hl,de 
 	ret 
 	
 slot2_fetch: 
