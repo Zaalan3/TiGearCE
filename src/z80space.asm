@@ -2,12 +2,21 @@
 section .rodata 
 
 jit_page := $D30000
-jit_shadow_stack := $0F00  
 jit_call_stack := $1FFE 
 
 macro align n 
 	rb n - $ 
 end macro 
+
+; RST routines 
+public rst_jit_dispatch
+public rst_get_address_hl
+public rst_get_address_ind
+public rst_verify_write_hl
+public rst_verify_write_ind
+public rst_push 
+public rst_pop
+public rst_line
 
 
 ; Z80 page routines 
@@ -74,7 +83,8 @@ rst_pop_smc:=$-2
 
 	
 	align $38
-rst_int_poll: 
+rst_line: 
+	jp vdp_line
 	ret
 	
 	align $66 
@@ -84,6 +94,7 @@ nmi_handler:
 	include "mapper.inc" 
 	include "stack.inc" 
 	include "io.inc"
+	include "vdp.inc" 
 	
 load _z80_page_data: $-$$ from $$
 jit_page_len := $-$$

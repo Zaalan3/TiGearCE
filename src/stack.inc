@@ -1,7 +1,5 @@
 
-extern stack_write_wram
-extern stack_write_sram
-extern _mapper_backup
+public update_stack 
 
 update_stack: 
 	push de 
@@ -252,3 +250,9 @@ pop_in_wram_mirror:
 	exx 
 	ex af,af'
 	ret
+
+
+extern stack_write_wram
+extern stack_write_sram
+extern _mapper_backup
+
