@@ -48,6 +48,11 @@ public vdp_vcounter
 
 public vdp_cram 
 public vdp_cram_mask
+public vdp_cram_written_flag
+
+public vdp_registers 
+public vdp_registers_written_flag
+
 public vdp_tile_flags 
 
 
