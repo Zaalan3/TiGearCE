@@ -1,11 +1,73 @@
 
-vdp_line: 
-
+vdp_line:
+	exx
+	ld a,(vdp_flags)
+	ld bc,(vdp_registers)	; fetch control registers 
+	; test for vertical blank 
+	ld hl,(vdp_vcounter) 
+	inc hl 
+	ld (vdp_vcounter),hl 
+	ex de,hl 
+	
+	ld hl,262 
+	or a,a 
+	sbc hl,de
+	jr z,.line0
+	
+	ld hl,192
+	bit 1,c		; test if in 192 or 224 line mode (M2 & M1)
+	jr z,.test
+	bit 4,b 
+	jr z,.test
+	ld hl,224 
+	
+.test: 
+	or a,a 
+	sbc hl,de 
+	jr nc,.active_display
+.vblank: 
+	jr nz,.end 
+	bit 5,b	; trigger if IE0 high
+	jr z,.end
+	set 7,a 
+	ld (vdp_flags),a 
+	; jp.lil vdp_draw
+	exx 
+	ret
+.line0: 
+	ex de,hl 
+	ld (vdp_vcounter),hl
+	jr .line_reload
+.active_display: 
+	ld b,0 
+vdp_line_counter:=$-1 
+	dec b 
+	jp po,.line_interrupt
+	ld a,b 
+	ld (vdp_line_counter),a 
+	exx 
+	ret 
+.line_interrupt: 
+	bit 4,c		; trigger if line interrupts enabled 
+	jr z,.line_reload 
+	set 0,a 
+	ld (vdp_flags),a
+.line_reload: 
+	ld a,(vdp_registers+$0A) 	; line counter reload value
+	ld (vdp_line_counter),a
+.end: 
+	exx 
+	ret 	
+	
 vdp_counter_read: 
 	rra 
 	jr c,.hcounter
-	ld a,(vdp_vcounter)
-	ld l,a
+	exx 
+	ld bc,0
+vdp_vcounter:=$-2 
+	ld a,c 
+	exx 
+	ld l,a 
 	rl l 
 	rr l 
 	ld a,h 
@@ -189,11 +251,8 @@ vdp_command_word_low:=$-1
 
 
 vdp_vram_address: dw 0
-
 vdp_flags: db 0
-vdp_vcounter: db 0 
 
- 
 align $600 
 vdp_cram:  
 	db 0 dup 64

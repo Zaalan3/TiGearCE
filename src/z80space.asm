@@ -15,6 +15,8 @@ public jit_page_len
 public jit_page
 public jit_call_stack
 
+public smc_int_enabled
+
 ; RST routines 
 public rst_jit_dispatch
 public rst_get_address_hl
@@ -119,13 +121,15 @@ rst_pop_smc:=$-2
 	align $38
 rst_line: 
 	call vdp_line
-	or a,a	; return if no pending interrupts 
+	ld a,(vdp_flags) 
+	and a,10000001b ; return if no pending interrupts 
 	jr z,.end 
 	ld a,0 ;service if interrupts enabled
 smc_int_enabled:=$-1
 	or a,a 
 	jr z,.end 
-	jp.lil 0 ;jit_int_handler 
+	;jp.lil 0 ;jit_int_handler 
+	;TODO: add tester for vdp register changes
 .end: 
 	ld a,cycles_per_line 
 	ret 

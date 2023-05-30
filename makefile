@@ -5,7 +5,7 @@
 NAME = DEMO
 ICON = icon.png
 DESCRIPTION = "CE Toolchain Demo"
-COMPRESSED = NO
+COMPRESSED = YES
 ARCHIVED = NO
 
 CFLAGS = -Wall -Wextra -Oz
