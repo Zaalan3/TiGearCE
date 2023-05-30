@@ -1,11 +1,5 @@
 
-public read_port_c 
-public write_port_c 
-
-public _portA
-public _portB
-public _portZero
-
+; output: l = byte read 
 read_port_c: 
 	ld h,a 
 	ld a,ixl 
@@ -14,23 +8,23 @@ read_port_c:
 	cp a,$40 
 	jq c,io_control_read 
 	cp a,$80 
-	jq c,vdp_counter
+	jq c,vdp_counter_read
 	cp a,$C0
-	jq c,vdp_status  
+	jq c,vdp_read 
 
 controller_read:
 	rra			; odd reads go to Port B 
 	jr c,.portB 
 .portA: 
 	ld l,0 
-_portA:=$-1
+portA:=$-1
 	rl l 
 	rr l 
 	ld a,h 
 	ret 
 .portB: 
 	ld l,0
-_portB:=$-1
+portB:=$-1
 	rl l 
 	rr l 
 	ld a,h 
@@ -59,6 +53,7 @@ io_control_read:
 	ld a,h 
 	ret 
 
+;input: l = byte to write
 write_port_c: 
 	push af 
 	ld a,ixl 
@@ -93,6 +88,8 @@ io_gg_registers:
 	db $C0,$7F,$FF,$00,$FF,$00,$FF
 
 ; C code needs access to set start button(bit 7)
-_portZero := io_gg_registers 
+_portZero := jit_page + io_gg_registers 
+_portA := jit_page + portA 
+_portB := jit_page + portB 
 
 

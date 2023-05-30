@@ -1,5 +1,4 @@
 
-public update_stack 
 
 update_stack: 
 	push de 
@@ -74,12 +73,14 @@ stack_routine_lut:
 	dw push_in_rom,pop_in_fixed_area 
 	dw 3 dup (push_in_rom,pop_in_slot0) 
 	dw 4 dup (push_in_rom,pop_in_slot1) 
-	dw 4 dup (push_in_slot2,pop_in_rom) 
+	dw 4 dup (push_in_slot2,pop_in_slot2) 
 	dw 2 dup (push_in_wram,pop_in_wram) 
 	dw 2 dup (push_in_wram_mirror,pop_in_wram_mirror) 
 	
 	
 push_in_rom:
+	dec hl 
+	dec hl 
 	pop de 
 	pop bc 
 	push de 
@@ -89,6 +90,8 @@ push_in_rom:
 	ret 
 
 push_in_wram:
+	dec hl 
+	dec hl  
 	pop de 
 	pop bc 
 	push de
@@ -101,6 +104,8 @@ push_in_wram:
 	jp.lil stack_write_wram
 
 push_in_wram_mirror:
+	dec hl 
+	dec hl  
 	pop de 
 	pop bc 
 	push de
@@ -119,6 +124,8 @@ push_in_wram_mirror:
 	
 	
 push_in_slot2:
+	dec hl 
+	dec hl  
 	pop de 
 	pop bc 
 	push de
@@ -143,7 +150,9 @@ push_in_slot2:
 	
 
 	
-pop_in_fixed_area: 
+pop_in_fixed_area:
+	inc hl 
+	inc hl
 	ld i,hl 
 	ld de,$03FF 
 	or a,a 
@@ -162,6 +171,8 @@ pop_in_fixed_area:
 	ret
 
 pop_in_slot0: 
+	inc hl 
+	inc hl 
 	ld i,hl 
 	ld de,$3FFF
 	or a,a 
@@ -179,7 +190,9 @@ pop_in_slot0:
 	ex af,af'
 	ret
 
-pop_in_slot1: 
+pop_in_slot1:
+	inc hl 
+	inc hl
 	ld i,hl 
 	ld de,$7FFF
 	or a,a 
@@ -197,12 +210,14 @@ pop_in_slot1:
 	ex af,af'
 	ret
 	
-pop_in_slot2: 
+pop_in_slot2:
+	inc hl 
+	inc hl
 	ld i,hl 
 	ld de,$BFFF
 	or a,a 
 	sbc hl,de 
-	jr nc,pop_region_boundary
+	jq nc,pop_region_boundary
 .read:
 	add hl,de 
 	ex de,hl
@@ -215,7 +230,9 @@ pop_in_slot2:
 	ex af,af'
 	ret
 	
-pop_in_wram: 
+pop_in_wram:
+	inc hl 
+	inc hl
 	ld i,hl
 	ld de,$DFFF 
 	or a,a 
@@ -234,6 +251,8 @@ pop_in_wram:
 	ret
 	
 pop_in_wram_mirror:
+	inc hl 
+	inc hl
 	ld i,hl 
 	dec h 	; check if overflow to page 0 
 	jp pe,pop_region_boundary

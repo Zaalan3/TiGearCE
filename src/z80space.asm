@@ -4,9 +4,16 @@ section .rodata
 jit_page := $D30000
 jit_call_stack := $1FFE 
 
+cycles_per_line := 228
+
 macro align n 
 	rb n - $ 
 end macro 
+
+public jit_page_src 
+public jit_page_len
+public jit_page
+public jit_call_stack
 
 ; RST routines 
 public rst_jit_dispatch
@@ -18,6 +25,32 @@ public rst_push
 public rst_pop
 public rst_line
 
+;mapper 
+public fixed_area_smc
+public slot0_smc
+public slot1_smc
+public slot2_smc
+
+;stack 
+public update_stack 
+
+;io 
+public read_port_c 
+public write_port_c 
+
+public _portA
+public _portB
+public _portZero
+
+;vdp 
+public vdp_flags 
+public vdp_vcounter
+
+public vdp_cram 
+public vdp_cram_mask
+public vdp_tile_flags 
+
+
 
 ; Z80 page routines 
 virtual at $0000 
@@ -25,14 +58,14 @@ virtual at $0000
 	
 	align 0  
 rst_jit_dispatch:
-	jp.lil jit_dispatch
+	jp.lil 0 ;jit_dispatch
 	 
 	; de = z80 hl
 	align $08
 rst_get_address_hl: 
 	ex af,af' 
 	ld l,d 
-	ld h,mapper_lut>>8 
+	ld h, (mapper_lut and $FF00) shr 8 
 	ld l,(hl)  	; offset of mapper-routine
 	inc h 
 	jp (hl) 
@@ -65,8 +98,6 @@ rst_push:
 	ex af,af' 
 	exx
 	ld hl,i 
-	dec hl 
-	dec hl
 	jp push_in_wram   
 rst_push_smc:=$-2 
 	
@@ -76,25 +107,33 @@ rst_pop:
 	ex af,af' 
 	exx 
 	ld hl,i 
-	inc hl 
-	inc hl 
 	jp pop_in_wram 
 rst_pop_smc:=$-2
 
 	
 	align $38
 rst_line: 
-	jp vdp_line
-	ret
+	call vdp_line
+	or a,a	; return if no pending interrupts 
+	jr z,.end 
+	ld a,0 ;service if interrupts enabled
+smc_int_enabled:=$-1
+	or a,a 
+	jr z,.end 
+	jp.lil 0 ;jit_int_handler 
+.end: 
+	ld a,cycles_per_line 
+	ret 
+	
 	
 	align $66 
 nmi_handler: 
 	ret 
 	
-	include "mapper.inc" 
-	include "stack.inc" 
-	include "io.inc"
-	include "vdp.inc" 
+include "mapper.inc" 
+include "stack.inc" 
+include "io.inc"
+include "vdp.inc" 
 	
 load _z80_page_data: $-$$ from $$
 jit_page_len := $-$$
@@ -105,4 +144,4 @@ jit_page_src: db _z80_page_data
 extern _sram 
 extern _wram 
 extern mapper_write 
-extern jit_dispatch
+;extern jit_dispatch

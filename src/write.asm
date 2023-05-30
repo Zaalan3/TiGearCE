@@ -42,7 +42,7 @@ swap_mapper:
 	jr nz,.end		; ram page select 
 	set 6,h			; +16Kb 
 .end: 	
-	ld (slot2_sms),hl 
+	ld (slot2_smc),hl 
 	exx 
 	ret 
 

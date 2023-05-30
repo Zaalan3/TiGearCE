@@ -1,11 +1,6 @@
 
-public fixed_area_smc
-public slot0_smc
-public slot1_smc
-public slot2_smc
-
-	; memory page => handler routine  
-	align $100
+; memory page => handler routine  
+align $100
 mapper_lut: 
 	db 4  dup (fixed_area_fetch and $FF)
 	db 60 dup (slot0_fetch and $FF)
@@ -14,7 +9,7 @@ mapper_lut:
 	db 32 dup (wram_fetch and $FF)
 	db 32 dup (wram_mirror_fetch and $FF) 
 	
-	align $200 
+align $200 
 mapper_routine:
 
 ; 0x0000 - 0x03FF always fixed to first rom page 
@@ -44,13 +39,13 @@ slot0_smc_addr:= $-3
 	
 slot1_fetch: 
 	ld.lil hl,0 
-slot1_sms_addr:= $-3 
+slot1_smc_addr:= $-3 
 	add.lil hl,de 
 	ret 
 	
 slot2_fetch: 
 	ld.lil hl,0 
-slot2_sms_addr:= $-3 
+slot2_smc_addr:= $-3 
 	add.lil hl,de 
 	ret 
 
