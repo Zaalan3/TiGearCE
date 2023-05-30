@@ -24,12 +24,17 @@ controller_read:
 .portA: 
 	ld l,0 
 _portA:=$-1
-	pop af 
+	rl l 
+	rr l 
+	ld a,h 
 	ret 
 .portB: 
 	ld l,0
 _portB:=$-1
-	pop af 
+	rl l 
+	rr l 
+	ld a,h 
+	ret 
 	ret 
 
 io_gg_control_read: 
@@ -41,26 +46,18 @@ io_gg_control_read:
 	ld a,(hl) 
 	exx 
 	ld l,a 
-	jr io_correct_flags
-	
-; $00 - $3F range does nothing here, we ain't got no BIOS. 
-io_control_read:
-	ld l,$FF 
-
-; preserve carry flag and set others in accordance with in r,(c)
-; l = in data 
-io_correct_flags: 
-	ld a,l  
-	exx 
-	rl l 	; l bit 0 = carry 
-	or a,a  ; set other bits 
-	ld h,a 
-	ld a,l 
-	rra 	; load carry
-	exx 
+	rl l 
+	rr l 
 	ld a,h 
 	ret 
 	
+; $00 - $3F range does nothing here, we ain't got no BIOS. 
+io_control_read:
+	ld l,$FF
+	rl l 
+	rr l 
+	ld a,h 
+	ret 
 
 write_port_c: 
 	push af 
