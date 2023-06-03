@@ -4,8 +4,7 @@ section .text
 assume adl=1 
 
 public mapper_write 
-public stack_write_wram
-public stack_write_sram
+
 
 ; HL = address
 ; a = page written to 
@@ -16,7 +15,7 @@ mapper_write:
 	cp a,$FC
 	call nc,swap_mapper
 .end:
-	pop af 
+	pop.sis af 
 	pop.sis hl 
 	jp.sis (hl) 
  
@@ -88,36 +87,6 @@ swap_mapper:
 	exx 
 	ret 
 	
-
-	; de' = offset
-	; (sps) = word to write 
-stack_write_wram:  
-	ld hl,_wram
-	add hl,de 
-	ld (hl),c 
-	inc hl 
-	ld (hl),b
-	exx 
-	ex af,af'
-	pop.sis hl 
-	jp.sis (hl) 
-	
-stack_write_sram:
-	ld hl,_sram
-	add hl,de 
-	pop.sis de 
-	ld (hl),c 
-	inc hl 
-	ld (hl),b
-	exx
-	ex af,af'
-	pop.sis hl 
-	jp.sis (hl)
-	
-	
-extern slot0_smc
-extern slot1_smc
-extern slot2_smc
 
 extern _sram 
 extern _wram
