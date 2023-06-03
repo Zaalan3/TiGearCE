@@ -1,3 +1,15 @@
+public vdp_flags 
+public vdp_vcounter
+
+public vdp_cram 
+public vdp_cram_mask
+public vdp_cram_written_flag
+
+public vdp_registers 
+public vdp_registers_written_flag
+
+public vdp_tile_flags 
+
 
 vdp_line:
 	exx
@@ -63,14 +75,15 @@ vdp_counter_read:
 	rra 
 	jr c,.hcounter
 	exx 
-	ld bc,0
+	ld de,0
 vdp_vcounter:=$-2 
-	ld a,c 
+	ld a,e 
 	exx 
 	ld l,a 
+	ld a,h 
+	ex af,af' 
 	rl l 
 	rr l 
-	ld a,h 
 	ret 
 .hcounter: 
 	; returns a fixed value at right blanking 

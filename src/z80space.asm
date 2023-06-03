@@ -45,17 +45,7 @@ public _portB
 public _portZero
 
 ;vdp 
-public vdp_flags 
-public vdp_vcounter
 
-public vdp_cram 
-public vdp_cram_mask
-public vdp_cram_written_flag
-
-public vdp_registers 
-public vdp_registers_written_flag
-
-public vdp_tile_flags 
 
 
 
@@ -96,25 +86,22 @@ rst_verify_write_hl:
 	align $20   
 rst_verify_write_ind: 
 	push af  
-	ld a,iyh
+	ld a,ixh
 	jp.lil mapper_write
 	
 	; usage: push rr / rst 
 	align $28
-rst_push: 
-	ex af,af' 
+rst_push:
 	exx
-	ld hl,i 
-	jp push_in_wram   
+	jp push_handler   
 rst_push_smc:=$-2 
 	
 	; usage: rst / pop rr
 	align $30
-rst_pop: 
-	ex af,af' 
+rst_pop:
+	ex af,af'
 	exx 
-	ld hl,i 
-	jp pop_in_wram 
+	jp pop_handler 
 rst_pop_smc:=$-2
 
 	

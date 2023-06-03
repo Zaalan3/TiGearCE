@@ -1,8 +1,16 @@
+public read_port_c 
+public write_port_c 
+
+public _portA
+public _portB
+public _portZero
 
 ; output: l = byte read 
 read_port_c: 
+	ex af,af'
 	ld h,a 
-	ld a,ixl 
+	exx 
+	ld a,c
 	cp a,$08 
 	jr c,io_gg_control_read
 	cp a,$40 

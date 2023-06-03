@@ -1,3 +1,7 @@
+public fixed_area_smc
+public slot0_smc
+public slot1_smc
+public slot2_smc
 
 ; memory page => handler routine  
 align $100
