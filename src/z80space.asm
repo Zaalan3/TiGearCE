@@ -34,7 +34,6 @@ public slot1_smc
 public slot2_smc
 
 ;stack 
-public update_stack 
 
 ;io 
 public read_port_c 
@@ -42,11 +41,9 @@ public write_port_c
 
 public _portA
 public _portB
-public _portZero
+public _port_GG_control
 
 ;vdp 
-
-
 
 
 ; Z80 page routines 
@@ -99,20 +96,21 @@ rst_push_smc:=$-2
 	; usage: rst / pop rr
 	align $30
 rst_pop:
-	ex af,af'
 	exx 
 	jp pop_handler 
 rst_pop_smc:=$-2
 
 	
 	align $38
-rst_line: 
+rst_line:
+	exx
 	call vdp_line
+	exx
 	ld a,(vdp_flags) 
 	and a,10000001b ; return if no pending interrupts 
 	jr z,.end 
 	ld a,0 ;service if interrupts enabled
-smc_int_enabled:=$-1
+z80_int_enabled:=$-1
 	or a,a 
 	jr z,.end 
 	;jp.lil 0 ;jit_int_handler 

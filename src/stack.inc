@@ -25,12 +25,13 @@ push_handler:
 	push bc
 	ld b,d
 	ld c,e
-	ld de,iy-2
+	lea de,iy-2
 	rst rst_get_address_hl
 	ld.lil (hl),c 
 	inc de
 	rst rst_get_address_hl
 	ld.lil (hl),b
+	pop bc
 	exx 
 	lea iy,iy-2
 	ret 

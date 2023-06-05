@@ -91,5 +91,9 @@ swap_mapper:
 extern _sram 
 extern _wram
 
+extern slot0_smc
+extern slot1_smc
+extern slot2_smc
+
 extern _rom_page_lut 
 

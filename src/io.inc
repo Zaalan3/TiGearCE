@@ -1,17 +1,17 @@
-public read_port_c 
-public write_port_c 
+; public read_port_c 
+; public write_port_c 
 
-public _portA
-public _portB
-public _portZero
+; public _portA
+; public _portB
+; public _port_GG_control
 
 ; output: l = byte read 
 read_port_c: 
-	ex af,af'
 	ld h,a 
 	exx 
 	ld a,c
-	cp a,$08 
+	exx 
+	cp a,$07
 	jr c,io_gg_control_read
 	cp a,$40 
 	jq c,io_control_read 
@@ -64,17 +64,17 @@ io_control_read:
 ;input: l = byte to write
 write_port_c: 
 	push af 
-	ld a,ixl 
+	exx 
+	ld a,c 
 	cp a,$08 
 	jr c,io_gg_control_write
-	cp a,$40 
-	jr c,.end
 	cp a,$80 
 	jr c,.end 
 	cp a,$C0 
 	jq c,vdp_write
 .end:
 	pop af
+	exx
 	ret 
 	
 io_gg_control_write: 
@@ -96,7 +96,7 @@ io_gg_registers:
 	db $C0,$7F,$FF,$00,$FF,$00,$FF
 
 ; C code needs access to set start button(bit 7)
-_portZero := jit_page + io_gg_registers 
+_port_GG_control := jit_page + io_gg_registers 
 _portA := jit_page + portA 
 _portB := jit_page + portB 
 
