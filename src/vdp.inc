@@ -306,4 +306,4 @@ align $680
 vdp_tile_flags: 
 	db 0 dup 64  
 
-extern _vram 
+

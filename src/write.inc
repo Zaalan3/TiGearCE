@@ -1,26 +1,21 @@
 
 ; special write routines 
-section .text 
+
 assume adl=1 
-
-public mapper_write 
-
 
 ; HL = address
 ; a = page written to 
 mapper_write:
-	inc a 		; only care about writes to $FFFC+ 
-	jr nz,.end  
 	ld a,l 
 	cp a,$FC
 	call nc,swap_mapper
-.end:
-	pop.sis af 
+.end: 
 	pop.sis hl 
 	jp.sis (hl) 
  
 
 swap_mapper: 
+	push de 
 	ld a,(hl)	; local copy of mapper registers
 	inc h 		; HL = $D160xx 
 	ld (hl),a 
@@ -43,17 +38,20 @@ swap_mapper:
 .end: 	
 	ld (slot2_smc),hl 
 	exx 
+	pop de
 	ret 
 
 .rom: 
 	; fetch rom page 
 	exx 
+	push de 
 	ld l,a 
 	ld h,3 
 	mlt hl 
 	ld de,_rom_page_lut
 	add hl,de 
 	ld hl,(hl) 
+	
 	exx 
 	ld a,l 
 	exx 
@@ -71,6 +69,7 @@ swap_mapper:
 	sbc hl,de 
 	ld (slot2_smc),hl 
 .slot2_skip: 
+	pop de
 	exx 
 	ret		
 .slot1_rom: ; FE 
@@ -79,21 +78,15 @@ swap_mapper:
 	ld de,$4000 
 	or a,a 
 	sbc hl,de 
-	ld (slot1_smc),hl 
+	ld (slot1_smc),hl
+	pop de
 	exx 
 	ret
 .slot0_rom: ; FD
 	ld (slot0_smc),hl 
+	pop de
 	exx 
 	ret 
 	
-
-extern _sram 
-extern _wram
-
-extern slot0_smc
-extern slot1_smc
-extern slot2_smc
-
 extern _rom_page_lut 
 

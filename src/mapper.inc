@@ -6,52 +6,36 @@
 ; memory page => handler routine  
 align $100
 mapper_lut: 
-	db 4  dup (fixed_area_fetch and $FF)
-	db 60 dup (slot0_fetch and $FF)
-	db 64 dup (slot1_fetch and $FF)
-	db 64 dup (slot2_fetch and $FF) 
-	db 32 dup (wram_fetch and $FF)
-	db 32 dup (wram_mirror_fetch and $FF) 
+	db 4  dup (fixed_area_smc_addr and $FF)	; 0x0000 - 0x03FF always fixed to first rom page 
+	db 60 dup (slot0_smc_addr and $FF)		; 400 - 3FFF 
+	db 64 dup (slot1_smc_addr and $FF)		; 4000 - 7FFF 
+	db 64 dup (slot2_smc_addr and $FF) 		; 8000 - BFFF 
+	db 32 dup (wram_fetch and $FF)			; C000 - DFFF 
+	db 32 dup (wram_mirror_fetch and $FF) 	; E000 - FFFF 
 	
 align $200 
 mapper_routine:
 
-; 0x0000 - 0x03FF always fixed to first rom page 
-fixed_area_fetch: 
-	ld.lil hl,0
-fixed_area_smc_addr:=$-3
-	add.lil hl,de 
-	ret 
+
+fixed_area_smc_addr: 
+	emit 3: 0 
+	
+slot0_smc_addr:
+	emit 3: 0
+	
+slot1_smc_addr: 
+	emit 3: 0
+	
+slot2_smc_addr: 
+	emit 3: 0
 	
 wram_fetch: 
-	ld.lil hl,_wram-$C000 
-	add.lil hl,de 
-	ret 
+	emit 3: _wram - $C000 
 	
-wram_mirror_fetch: 
-	ld.lil hl,_wram-$E000 
-	add.lil hl,de 
-	ret	
+wram_mirror_fetch:
+	emit 3: _wram - $E000 
 	
-	
-; example address function
-slot0_fetch:
-	ld.lil hl,0 
-slot0_smc_addr:= $-3 
-	add.lil hl,de 	; add offset 
-	ret 
-	
-slot1_fetch: 
-	ld.lil hl,0 
-slot1_smc_addr:= $-3 
-	add.lil hl,de 
-	ret 
-	
-slot2_fetch: 
-	ld.lil hl,0 
-slot2_smc_addr:= $-3 
-	add.lil hl,de 
-	ret 
+
 
 fixed_area_smc := jit_page + fixed_area_smc_addr
 slot0_smc := jit_page + slot0_smc_addr

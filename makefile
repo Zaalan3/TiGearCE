@@ -7,6 +7,7 @@ ICON = icon.png
 DESCRIPTION = "CE Toolchain Demo"
 COMPRESSED = YES
 ARCHIVED = NO
+LTO = NO
 
 CFLAGS = -Wall -Wextra -Oz
 CXXFLAGS = -Wall -Wextra -Oz
