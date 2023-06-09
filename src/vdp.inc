@@ -105,7 +105,7 @@ vdp_read:
 	ld l,0 
 vdp_read_buffer:=$-1
 	exx 
-	ld hl,i
+	ld hl,(vdp_vram_address)
 	ex de,hl
 	ld.lil hl,_vram 	
 	add.lil hl,de
@@ -114,7 +114,7 @@ vdp_read_buffer:=$-1
 	ex de,hl
 	inc hl
 	res 6,h			; mask to 14 bits 
-	ld i,hl
+	ld (vdp_vram_address),hl
 	exx 
 	rl l 
 	rr l 
@@ -143,7 +143,7 @@ vdp_write_data:
 	exx
 	jr c,.cram
 .vram: 
-	ld hl,i
+	ld hl,(vdp_vram_address)
 	ex de,hl
 	ld.lil de,_vram
 	add.lil hl,de
@@ -168,7 +168,7 @@ vdp_write_data:
 vdp_cram_mode:=$-2
 
 .cramSMS:
-	ld a,i
+	ld a,(vdp_vram_address)
 	and a,00011111b
 	ld d,vdp_cram shr 8
 	ld e,a
@@ -176,16 +176,16 @@ vdp_cram_mode:=$-2
 	ld (hl),e 
 	ld l,vdp_cram_written_flag and $FF
 	ld (hl),l
-	ld hl,i 
+	ld hl,(vdp_vram_address)
 	inc hl
 	res 6,h
-	ld i,hl 
+	ld (vdp_vram_address),hl 
 	pop af 
 	exx 
 	ret 
 
 .cramGG: 
-	ld a,i
+	ld a,(vdp_vram_address)
 	and a,00111111b
 	ld d,vdp_cram shr 8
 	ld e,a
@@ -196,10 +196,10 @@ vdp_cram_mode:=$-2
 	ld l,vdp_cram_written_flag and $FF
 	ld (hl),l
 .skipUpdateFlag:
-	ld hl,i 
+	ld hl,(vdp_vram_address)
 	inc hl
 	res 6,h
-	ld i,hl 
+	ld (vdp_vram_address),hl 
 	pop af 
 	exx 
 	ret
@@ -223,7 +223,7 @@ vdp_command_word_low:=$-1
 	; get command code(a>>6) 
 	res 7,h	; 14-bit address 
 	res 6,h
-	ld i,hl
+	ld (vdp_vram_address),hl
 	
 	rlca 
 	rlca 
@@ -248,7 +248,7 @@ vdp_command_word_low:=$-1
 	ex de,hl
 	inc hl 
 	res 6,h
-	ld i,hl				
+	ld (vdp_vram_address),hl			
 	ld (vdp_read_buffer),a		; reload read buffer
 	jr .set_data_vram 
 
