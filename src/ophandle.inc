@@ -60,7 +60,9 @@ write_de:
 	ld.lil (hl),a 
 	push af 
 	ld a,b 
-	rst rst_verify_write 
+	inc a 
+	jr nz,$+3  
+	rst rst_mapper_jmp
 	pop af 
 	ret 
 	
