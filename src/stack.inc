@@ -2,16 +2,16 @@
 	
 pop_handler: 
 	lea de,iy+0
-	push bc 
-	;rst rst_get_address_hl
-	ld.lil c,(hl)
-	inc de
-	;rst rst_get_address_hl
-	ld.lil b,(hl)
-	pop de 
-	push bc 
-	ld b,d 
-	ld c,e 
+	ex af,af'
+	ld.lil hl,i 
+	ld l,d  
+	ld l,(hl) 
+	inc h 
+	ld.lil hl,(hl) 
+	add.lil hl,de 
+	ld.lil hl,(hl) 
+	ex af,af'
+	push hl 
 	exx
 	pop hl
 	lea iy,iy+2
@@ -26,11 +26,17 @@ push_handler:
 	ld b,d
 	ld c,e
 	lea de,iy-2
-	;rst rst_get_address_hl
+	ex af,af'
+	ld.lil hl,i 
+	ld l,d  
+	ld l,(hl) 
+	inc h 
+	ld.lil hl,(hl) 
+	add.lil hl,de
 	ld.lil (hl),c 
-	inc de
-	;rst rst_get_address_hl
+	inc.lil hl 
 	ld.lil (hl),b
+	ex af,af' 
 	pop bc
 	exx 
 	lea iy,iy-2
