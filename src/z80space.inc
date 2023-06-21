@@ -13,26 +13,34 @@ virtual at $0000
 	assume adl=0 
 	
 	align 0  
-rst_jit_dispatch:
-	jp.lil 0 ;jit_dispatch
+rst_jit_search:
+	jp.lil jit_search
 	 
 	align $08
 rst_jit_local: 
+	jp.lil jit_search_local 
 	
 	align $10
-rst_hex10: 
+rst_mapper_jmp: 
+	jp.lil nc,mapper_write 
 	
 	align $18 
-rst_verify_write:
-	inc a
-	jp.lil z,mapper_write
+rst_verify_write_hl:
+	push af
+	ld a,d
+	inc a 
+	jr z,rst_mapper_jmp
+	pop af 
 	ret 
 	
 	align $20   
 rst_verify_write_ind: 
 	push af  
 	ld a,ixh
-	jp.lil mapper_write
+	inc a 
+	jr z,rst_mapper_jmp
+	pop af 
+	ret 
 	
 	; usage: push rr / rst 
 	align $28
@@ -61,7 +69,7 @@ rst_line:
 z80_int_enabled:=$-1
 	or a,a 
 	jr z,.end 
-	;jp.lil 0 ;jit_int_handler 
+	jp.lil jit_int_handler 
 	;TODO: add tester for vdp register changes
 .end: 
 	ld a,cycles_per_line 
