@@ -26,17 +26,12 @@ controller_read:
 .portA: 
 	ld l,0 
 portA:=$-1
-	rl l 
-	rr l 
 	ld a,h 
 	ret 
 .portB: 
 	ld l,0
 portB:=$-1
-	rl l 
-	rr l 
 	ld a,h 
-	ret 
 	ret 
 
 io_gg_control_read: 
@@ -48,16 +43,12 @@ io_gg_control_read:
 	ld a,(hl) 
 	exx 
 	ld l,a 
-	rl l 
-	rr l 
 	ld a,h 
 	ret 
 	
 ; $00 - $3F range does nothing here, we ain't got no BIOS. 
 io_control_read:
 	ld l,$FF
-	rl l 
-	rr l 
 	ld a,h 
 	ret 
 

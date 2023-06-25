@@ -5,7 +5,7 @@
 NAME = DEMO
 ICON = icon.png
 DESCRIPTION = "CE Toolchain Demo"
-COMPRESSED = YES
+COMPRESSED = NO
 ARCHIVED = NO
 LTO = NO
 

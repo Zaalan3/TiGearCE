@@ -45,18 +45,17 @@ rst_verify_write_ind:
 	; usage: push rr / rst 
 	align $28
 rst_push:
+	pop hl
 	exx
 	jp push_handler   
-rst_push_smc:=$-2 
 	
 	; usage: rst / pop rr
 	align $30
 rst_pop:
+	pop hl
 	exx 
 	jp pop_handler 
-rst_pop_smc:=$-2
 
-	
 	align $38
 rst_line:
 	exx
@@ -86,6 +85,7 @@ include "io.inc"
 include "vdp.inc" 
 include "ophandle.inc"
 	
+assert $ < $1FFF 
 load _z80_page_data: $-$$ from $$
 jit_page_len := $-$$
 end virtual 

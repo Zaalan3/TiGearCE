@@ -85,15 +85,11 @@ vdp_vcounter:=$-2
 	exx 
 	ld l,a 
 	ld a,h 
-	ex af,af' 
-	rl l 
-	rr l 
+	ex af,af'  
 	ret 
 .hcounter: 
 	; returns a fixed value at right blanking 
 	ld l,$88
-	rl l 
-	rr l 
 	ld a,h 
 	ret 
 
@@ -116,8 +112,6 @@ vdp_read_buffer:=$-1
 	res 6,h			; mask to 14 bits 
 	ld (vdp_vram_address),hl
 	exx 
-	rl l 
-	rr l 
 	ld a,h 
 	ret 
 	
@@ -126,8 +120,6 @@ vdp_read_buffer:=$-1
 	ld a,(hl) 
 	ld (hl),0 	; clear flags after read
 	ld l,a 
-	rl l 
-	rr l 
 	ld a,h 
 	ret 
 	
