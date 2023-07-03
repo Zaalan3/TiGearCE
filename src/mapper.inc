@@ -35,7 +35,16 @@ wram_fetch:
 wram_mirror_fetch:
 	emit 3: _wram - $E000 
 	
-
+mapper_get_address: 
+	ex af,af'
+	ld.lil hl,i 
+	ld l,d  
+	ld l,(hl) 
+	inc h 
+	ld.lil hl,(hl) 
+	add.lil hl,de 
+	ex af,af'
+	ret 
 
 fixed_area_smc := jit_page + fixed_area_smc_addr
 slot0_smc := jit_page + slot0_smc_addr

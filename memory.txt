@@ -22,7 +22,10 @@ $D14000 : WRAM  (8kb)
 
 $D28000 : tile cache (32 KB) 
 $D30000 : z80 page   (64 KB)
-	$0000 - $0100 : rst routines 
+	$00 	: rst routines 
+	$01-$02	: mapper data
+	$08-$09 : tile flags 
+	$0A		: CRAM 
 	
 
 (VRAM) 

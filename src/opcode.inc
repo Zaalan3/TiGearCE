@@ -29,32 +29,11 @@ assume adl = 1
 label.len:= $ - label 
 end macro
 
-
-
-section .bss
-
-public block_start_addr
-public block_cycles_addr
-public block_z80_addr
-public block_cache_addr
-public block_next_split
-
-
-block_start_addr: 
-	rb 3 
-block_cycles_addr: 
-	rb 3  
-block_z80_addr: 
-	rb 3
-block_cache_addr: 
-	rb 3
-block_next_split:
-	rb 3
-	
 section .text 
-assume adl = 1 
+assume adl = 1
 
 start_block:
+	ld iy,(block_cache_addr) 
 	ld (block_start_addr),ix
 	lea hl,iy+2
 	ld (block_cycles_addr),hl 
@@ -109,14 +88,11 @@ jit_translate:
 	pop de
 	ld hl,$FFFFFF
 	ld (block_next_split),hl 
-	inc hl 
-	ld (block_z80_addr),hl 
+	
 	pop hl 
-	pop iy 
 	pop ix 
 	push hl 
 	push hl 
-	push hl
 	push de 
 	call start_block 
 	
@@ -132,7 +108,7 @@ opcode_gen_loop:
 	jq z,block_split
 	call c,load_split
 	lea hl,iy+0  
-	ld de,$D40000 
+	ld de,$D40000
 	or a,a 
 	sbc hl,de 
 	jp nc,jit_flush
@@ -180,9 +156,29 @@ opcode_gen_loop:
 call_hl: 
 	jp (hl)
 	
-gen_ix: 
-gen_extend:
 gen_iy:
+gen_ix: 
+	ld a,(ix+1) 
+	ld l,a 
+	ld h,5 
+	ld de,opcode_table_ix
+	mlt hl 
+	add hl,de
+	ex af,af' 
+	add a,(hl) 
+	cp a,max_cycles 
+	jq nc,out_of_cycles 
+	ex af,af' 
+	inc hl 
+	ld c,(hl)
+	inc hl 
+	ld hl,(hl) 
+	call call_hl
+	jq opcode_gen_loop.test_return 
+	
+gen_extend:
+
+
 out_of_cycles:
 block_split:
 load_split:
@@ -533,9 +529,9 @@ opcode_table_ix:
 	opcode 3,11,OP_IX_NOMAP
 	opcode 2,8,OP_NOP
 	
-	;8 
+	; 8 
 	opcode 2,8,OP_NOP
-	opcode 2,15,OP_ADDIXBC 
+	opcode 2,15,OP_IX_BC  
 	opcode 2,8,OP_NOP
 	opcode 2,8,OP_NOP
 	opcode 2,8,OP_IX_NOMAP
@@ -543,7 +539,87 @@ opcode_table_ix:
 	opcode 3,11,OP_IX_NOMAP
 	opcode 2,8,OP_NOP
 	
-
+	; 10 
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 3,11,OP_IX_NOMAP
+	opcode 2,8,OP_NOP
+	
+	; 18 
+	opcode 2,8,OP_NOP
+	opcode 2,15,OP_ADDIXDE 
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 3,11,OP_IX_NOMAP
+	opcode 2,8,OP_NOP
+	
+	; 20
+	opcode 2,8,OP_NOP
+	opcode 4,14,OP_COPY_IX
+	opcode 4,20,OP_WRITE_ABS_IX 
+	opcode 2,10,OP_COPY_IX 
+	opcode 2,8,OP_COPY_IX 
+	opcode 2,8,OP_COPY_IX 
+	opcode 3,11,OP_COPY_IX 
+	opcode 2,8,OP_NOP
+	
+	; 28 
+	opcode 2,8,OP_NOP
+	opcode 4,15,OP_COPY_IX 
+	opcode 4,20,OP_READ_ABS_IX 
+	opcode 2,10,OP_COPY_IX 
+	opcode 2,8,OP_COPY_IX 
+	opcode 2,8,OP_COPY_IX 
+	opcode 3,11,OP_COPY_IX 
+	opcode 2,8,OP_NOP
+	
+	; 30
+	opcode 2,8,OP_NOP 
+	opcode 2,8,OP_NOP 
+	opcode 2,8,OP_NOP 
+	opcode 2,8,OP_NOP
+	opcode 3,23,OP_INC_IND
+	opcode 3,23,OP_INC_IND
+	opcode 4,19,OP_WRITE_IX 
+	opcode 2,8,OP_NOP
+	
+	; 38 
+	opcode 2,8,OP_NOP
+	opcode 2,15,OP_ADDIXSP
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_NOP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 3,11,OP_IX_NOMAP
+	opcode 2,8,OP_NOP
+	
+	; 40
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_BC
+	opcode 2,8,OP_IX_BC
+	opcode 3,19,OP_MOVETO_RR_IX 
+	opcode 2,8,OP_IX_NOMAP
+	
+	;48 
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_NOMAP
+	opcode 2,8,OP_IX_BC
+	opcode 2,8,OP_IX_BC
+	opcode 3,19,OP_MOVETO_RR_IX 
+	opcode 2,8,OP_IX_NOMAP
+	
+	; 50
 ; gather block end conditions
 
 ; marked by: 
@@ -555,32 +631,18 @@ opcode_table_ix:
 emit_indhl: 
 	emit_code ind_hl_code
 z80_start ind_hl_code
-	ex af,af'
-	ld.lil hl,i 
-	ld l,d  
-	ld l,(hl) 
-	inc h 
-	ld.lil hl,(hl) 
-	add.lil hl,de 
-	ex af,af' 
+	rst rst_mapper
 z80_end ind_hl_code
 	
 emit_indix:
 	ld (smc_displacement),a 
 	emit_code ind_ix_code
 z80_start ind_ix_code 
-	ex af,af'
-	push de 
+	push de
 	lea de,ix+0
 smc_displacement:=$-1 
-	ld.lil hl,i
-	ld l,d 
-	ld l,(hl) 
-	inc h 
-	ld.lil hl,(hl) 
-	add.lil hl,de 
-	pop de 
-	ex af,af'
+	rst rst_mapper 
+	pop de
 z80_end ind_ix_code
 	
 	
@@ -603,9 +665,7 @@ OP_COPY:
 	add iy,bc
 	xor a,a 
 	ret 
-	
-OP_IX_NOMAP: 
-	
+
 OP_ALU: 
 	and a,0111b 	; get register 
 	cp a,2 
@@ -864,7 +924,6 @@ MOVE_RR_DEHL:
 	ret 
 	
 	
-	
 OP_BC_WRITE:
 	emit_code wbc_code 
 z80_start wbc_code
@@ -981,10 +1040,64 @@ z80_start di_code
 z80_end di_code
 
 
+;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+; IX/IY 
+
+OP_IX_NOMAP:
+	inc ix 
+	ld a,(ix+0) 
+	ld l,a 
+	ld h,5 
+	mlt hl 
+	ld de,opcode_table+2 
+	add hl,de 
+	ld hl,(hl) 
+	jp (hl)
+	
+OP_COPY_IX: 
+	ld (iy+0),$DD 
+	inc iy 
+	ld a,c 
+	dec c 
+	lea de,iy+0 
+	add iy,bc 
+	lea hl,ix+1 
+	ldir 
+	ld c,a 
+	xor a,a 
+	ret 
+	
+	
+OP_IX_BC: 
+	ld (iy+0),$D9 	; exx
+	inc iy 
+	call OP_COPY_IX 
+	ld (iy+0),$D9 
+	inc iy 
+	ret 
+	
+OP_ADDIXDE:
+	emit_code addixde_code 
+z80_start addixde_code
+	add ix,bc 
+z80_end addixde_code
+
+OP_ADDIXSP:
+	emit_code addixsp_code 
+z80_start addixsp_code
+	lea hl,iy+0 
+	ex de,hl 
+	add ix,de 
+	ex de,hl 
+z80_end addixsp_code
+
+
+
+	
 
 
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; (HL)
+; (HL) 
 
 ;instructions like `inc (hl)` 
 OP_IND_HL_RW: 
@@ -1073,6 +1186,19 @@ OP_WRITE_HL:
 	xor a,a 
 	ret 
 
+;, (IX+n)
+
+OP_WRITE_IX: 
+
+OP_INC_IND: 
+	xor a,a 
+	ret 
+
+OP_MOVETO_RR_IX: 
+	xor a,a 
+	ret 
+	
+	
 
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;I/O 
@@ -1087,11 +1213,106 @@ OP_OUT_IMM:
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;absolute read/write 
 
-OP_READ_ABS_HL: 
-OP_READ_ABS_A: 
 
-OP_WRITE_ABS_HL:
+emit_abs_header:
+	ld hl,abs_header_code.addr
+	ld (hl),e 
+	inc hl 
+	ld (hl),d
+	emit_code abs_header_code
+z80_start abs_header_code
+	push de 
+	ld de,0 
+abs_header_code.addr := $ - 2
+	rst rst_mapper
+	pop de 
+z80_end
+
+; if DE is local to current block address: 
+; de = ez80 address , carry set
+; else 
+; de is unchanged , carry clear  
+interpret_rom_address: 
+	ld hl,(block_page_low) 
+	or a,a 
+	sbc hl,de 
+	jr z,.local 
+	jr nc,.global
+	ld hl,(block_page_high) 
+	or a,a 
+	sbc hl,de 
+	jr c,.global 
+.local: 
+	ex de,hl 
+	ld de,(block_page_low) ; find offset into page
+	or a,a 
+	sbc hl,de 
+	push hl 
+	ld de,_rom_page_lut		; get page pointer 
+	ld a,(block_z80_addr+2)
+	ld l,a 
+	ld h,3 
+	mlt hl 
+	add hl,de
+	ld hl,(hl) 
+	pop de 
+	add hl,de				; address = page + offset  
+	or a,a 					; clear carry 
+	ret 
+.global: 
+	scf 
+	ret 
+
+; RAM\local ROM\fixed ROM: ld.lil a,(addr) 
+; ROM(global): push de \ ld de,addr \ rst rst_mapper \ pop de \ ld.lil a,(hl)
+OP_READ_ABS_A:
+	ld hl,(ix+1)
+	ex.sis de,hl 	; force DEU to 0 
+	ld hl,$03FF
+	or a,a 
+	sbc hl,de 
+	jr nc,.fixed
+	ld hl,$BFFF
+	or a,a 
+	sbc hl,de 
+	jr c,.ram 
+	call interpret_rom_address 
+	jr c,.emit
+.global: 
+	call emit_abs_header
+	ld (iy+0),$5B 		;.lil 
+	ld (iy+1),$7E		; ld a,(hl) 
+	lea iy,iy+2 
+	xor a,a 
+	ret 
+.fixed: 
+	ld hl,(_rom_page_lut) ; page 0 address 
+	add hl,de 
+	jr .emit 
+.ram:
+	ld hl,_wram-$C000
+	res 5,d 		; $E000-$FFFF => $C000 - $DFFF 
+	add hl,de
+.emit: 
+	ld a,(ix+0)
+	ld (iy+0),$5B 		; ld.lil a,(addr) 
+	ld (iy+1),a 
+	ld (iy+2),hl 
+	lea iy,iy+5
+	ret 
+	
+OP_READ_ABS_HL: 
+	ld hl,(ix+1)
+	ex.sis de,hl 	; force DEU to 0 
+	ld a,e 
+	inc a 
+	jr z,.border 
+	
 OP_WRITE_ABS_A: 
+OP_WRITE_ABS_HL:
+
+OP_WRITE_ABS_IX: 
+OP_READ_ABS_IX: 
 
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ; branch 
@@ -1105,14 +1326,14 @@ OP_JR_COND:
 OP_DJNZ: 
 OP_JP_COND: 
 OP_CALL_COND:
-OP_RET_COND: 
+OP_RET_COND:
+OP_CALL: 
 	ld a,1 
 	ret 
 
 OP_JR:
 OP_JUMP: 
 OP_JP_HL: 
-OP_CALL: 
 OP_RET:
 OP_RST:
 OP_HALT:

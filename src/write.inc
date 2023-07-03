@@ -88,5 +88,3 @@ swap_mapper:
 	exx 
 	ret 
 	
-extern _rom_page_lut 
-

@@ -62,7 +62,7 @@ write_de:
 	ld a,b 
 	inc a 
 	jr nz,$+3  
-	rst rst_mapper_jmp
+	call rst_mapper_write
 	pop af 
 	ret 
 	

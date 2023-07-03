@@ -5,18 +5,18 @@ public _sample_code
 
 assume adl=0 
 _sample_code: 
-	ld a,5 
-	ld (hl),a 
-	bit 3,(hl) 
-	ld b,c 
-	ld c,h
-	bit 1,l 
-	jr nz,$+3 
-	ld h,4 
-	ld l,2 
-	ld hl,5 
-	and a,d 
-	inc hl
+	xor a,a
+    ld b,16
+.l1: 
+	add hl,hl
+    rla
+	ld a,(hl) 
+    cp c
+	rr (hl)
+    jr c,.l2 
+    sub c
+    inc l
+.l2:djnz .l1
 	ret 
 	
 assume adl=1

@@ -1,8 +1,5 @@
 
-jit_page := $D30000
-jit_call_stack := $1FFE 
 
-cycles_per_line := 228
 
 macro align n 
 	rb n - $ 
@@ -21,7 +18,9 @@ rst_jit_local:
 	jp.lil jit_search_local 
 	
 	align $10
-rst_mapper_jmp: 
+rst_mapper: 
+	jp mapper_get_address
+rst_mapper_write: 
 	jp.lil nc,mapper_write 
 	
 	align $18 
@@ -29,7 +28,7 @@ rst_verify_write_hl:
 	push af
 	ld a,d
 	inc a 
-	jr z,rst_mapper_jmp
+	jr z,rst_mapper_write
 	pop af 
 	ret 
 	
@@ -38,7 +37,7 @@ rst_verify_write_ind:
 	push af  
 	ld a,ixh
 	inc a 
-	jr z,rst_mapper_jmp
+	jr z,rst_mapper_write
 	pop af 
 	ret 
 	
